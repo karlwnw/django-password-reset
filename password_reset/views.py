@@ -8,8 +8,6 @@ from django.shortcuts import get_object_or_404, redirect
 from django.template import loader
 from django.views import generic
 
-from .forms import PasswordRecoveryForm, PasswordResetForm
-
 
 class SaltMixin(object):
     salt = 'password_recovery'
@@ -17,7 +15,6 @@ class SaltMixin(object):
 
 class Recover(SaltMixin, generic.FormView):
     case_sensitive = True
-    form_class = PasswordRecoveryForm
     template_name = 'password_reset/recovery_form.html'
     email_template_name = 'password_reset/recovery_email.txt'
     email_subject_template_name = 'password_reset/recovery_email_subject.txt'
@@ -61,11 +58,9 @@ class Recover(SaltMixin, generic.FormView):
             email = self.user.email
         context = {'email': email}
         return self.render_to_response(self.get_context_data(**context))
-recover = Recover.as_view()
 
 
 class Reset(SaltMixin, generic.FormView):
-    form_class = PasswordResetForm
     token_expires = 3600 * 48  # Two days
     template_name = 'password_reset/reset.html'
     success_url = reverse_lazy('password_reset_done')
@@ -104,7 +99,6 @@ class Reset(SaltMixin, generic.FormView):
     def form_valid(self, form):
         form.save()
         return redirect(self.get_success_url())
-reset = Reset.as_view()
 
 
 class ResetDone(generic.TemplateView):
